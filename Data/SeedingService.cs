@@ -22,7 +22,7 @@ namespace SalesWebMvc.Data
             {
                 return; // banco de dados já foi copulado
             }
-
+            else
             {   // copulando banco de dados 
 
                 Department d1 = new Department(1, "Computers");
@@ -79,7 +79,7 @@ namespace SalesWebMvc.Data
                 );
 
                 _context.SaveChanges(); // salvando as alterações no banco
-            }
+            }            
         }
     }
 }
