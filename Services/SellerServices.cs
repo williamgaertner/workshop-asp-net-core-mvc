@@ -6,6 +6,7 @@ using SalesWebMvc.Data;
 using SalesWebMvc.Models;
 using Microsoft.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using SalesWebMvc.Services.Exception;
 
 namespace SalesWebMvc.Services
 {
@@ -42,6 +43,23 @@ namespace SalesWebMvc.Services
             _context.Seller.Remove(rem);
             _context.SaveChanges();
 
+        }
+
+        public void Update(Seller obj)
+        {
+            if(!_context.Seller.Any(x => x.Id == obj.Id)) // se não existir um seller x cujo id seja igual ao do objeto
+            {
+                throw new NotFoundException("Not found");
+            }
+            try
+            {
+                _context.Update(obj);
+                _context.SaveChanges();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
         }
     }
 }
