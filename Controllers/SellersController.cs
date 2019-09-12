@@ -5,16 +5,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models;
+using SalesWebMvc.Models.ViewModels;
 
 namespace SalesWebMvc.Controllers
 {
     public class SellersController : Controller
     {
         private readonly SellerServices _sellerService; // criando uma dependencia para sellers services
+        private readonly DepartmentServices _departmentService;
 
-        public SellersController(SellerServices sellerService) // criando construtor com injeção de dependencia 
+        public SellersController(SellerServices sellerService, DepartmentServices departmentService) // criando construtor com injeção de dependencia 
         {
             _sellerService = sellerService;
+            _departmentService = departmentService;
         }
 
         public IActionResult Index()
@@ -25,7 +28,9 @@ namespace SalesWebMvc.Controllers
 
         public IActionResult Create() // retorna a visualização apos açao de apertar o botão create 
         {
-            return View(); 
+            var departments = _departmentService.FindAll(); // procurar todos os departamentos
+            var depviewmodel = new SallerFormViewModel() {Departments = departments}; // instanciando a classe e inicializando com os departamentos
+            return View(depviewmodel); // mostrando a tela de departamentos
         }
 
         [HttpPost] // metodo post
