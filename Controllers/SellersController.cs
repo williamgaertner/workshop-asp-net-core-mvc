@@ -39,6 +39,13 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken] // validação de segurança para seções abertas
         public IActionResult Create(Seller seller) // criando o metodo crete post para envio apos a usuario apertar o botao enviar
         {
+            if (!ModelState.IsValid) // metodo para fazer a verificação do lado servidor
+            {
+                var dep = _departmentService.FindAll();
+                var viewmodel = new SallerFormViewModel { Seller = seller, Departments = dep };
+                View(viewmodel);
+            }
+
             _sellerService.Insert(seller); // insere o seller no banco de dados acessando o metodo insert (SellerService)
             return RedirectToAction(nameof(Index)); // redireciona para a pagina index
         }
@@ -83,6 +90,13 @@ namespace SalesWebMvc.Controllers
 
         public IActionResult Edit(int? id)
         {
+            if (!ModelState.IsValid) // metodo para fazer a verificação do lado servidor
+            {
+                var dep = _departmentService.FindAll();
+                var viewmodel = new SallerFormViewModel { Seller = seller, Departments = dep };
+                View(viewmodel);
+            }
+
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
