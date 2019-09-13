@@ -22,41 +22,41 @@ namespace SalesWebMvc.Controllers
             _departmentService = departmentService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _sellerService.FindAll(); //retornar uma lista de service seller
+            var list = await _sellerService.FindAllAsync(); //retornar uma lista de service seller
             return View(list); // dinamica do mvc
         }
 
-        public IActionResult Create() // retorna a visualização apos açao de apertar o botão create 
+        public async Task<IActionResult> Create() // retorna a visualização apos açao de apertar o botão create 
         {
-            var departments = _departmentService.FindAll(); // procurar todos os departamentos
+            var departments = await _departmentService.FindAllAsync(); // procurar todos os departamentos
             var depviewmodel = new SallerFormViewModel() {Departments = departments}; // instanciando a classe e inicializando com os departamentos
             return View(depviewmodel); // mostrando a tela de departamentos
         }
 
         [HttpPost] // metodo post
         [ValidateAntiForgeryToken] // validação de segurança para seções abertas
-        public IActionResult Create(Seller seller) // criando o metodo crete post para envio apos a usuario apertar o botao enviar
+        public async Task<IActionResult> Create(Seller seller) // criando o metodo crete post para envio apos a usuario apertar o botao enviar
         {
             if (!ModelState.IsValid) // metodo para fazer a verificação do lado servidor
             {
-                var dep = _departmentService.FindAll();
+                var dep = await _departmentService.FindAllAsync();
                 var viewmodel = new SallerFormViewModel { Seller = seller, Departments = dep };
                 View(viewmodel);
             }
 
-            _sellerService.Insert(seller); // insere o seller no banco de dados acessando o metodo insert (SellerService)
+            await _sellerService.InsertAsync(seller); // insere o seller no banco de dados acessando o metodo insert (SellerService)
             return RedirectToAction(nameof(Index)); // redireciona para a pagina index
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if(id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
             }
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
             if(obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
@@ -67,19 +67,19 @@ namespace SalesWebMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async  Task<IActionResult> Delete(int id)
         {
-            _sellerService.Remove(id);
+            await _sellerService.RemoveAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
             }
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
@@ -88,42 +88,42 @@ namespace SalesWebMvc.Controllers
             return View(obj);
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (!ModelState.IsValid) // metodo para fazer a verificação do lado servidor
-            {
-                var dep = _departmentService.FindAll();
-                var viewmodel = new SallerFormViewModel { Seller = seller, Departments = dep };
-                View(viewmodel);
-            }
-
+           
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
             }
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
             }
 
-            List<Department> departments = _departmentService.FindAll();
+            List<Department> departments = await _departmentService.FindAllAsync();
             SallerFormViewModel viewmodel = new SallerFormViewModel { Seller = obj, Departments = departments };
             return View(viewmodel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
+            if (!ModelState.IsValid) // metodo para fazer a verificação do lado servidor
+            {
+                var dep = await _departmentService.FindAllAsync();
+                var viewmodel = new SallerFormViewModel { Seller = seller, Departments = dep };
+                View(viewmodel);
+            }
 
-            if(id != seller.Id)
+            if (id != seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Not encontrado" });
             }
             try
             {
-                _sellerService.Update(seller);
+                await _sellerService.UpdateAsync(seller);
                 return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException e)
